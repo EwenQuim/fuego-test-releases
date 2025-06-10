@@ -29,7 +29,7 @@ build:
 
 dependencies-analyze:
 	which govulncheck || go install golang.org/x/vuln/cmd/govulncheck@latest
-	govulncheck ./...
+	go run golang.org/x/vuln/cmd/govulncheck@latest ./...
 
 fmt:
 	which gofumpt || go install mvdan.cc/gofumpt@latest
@@ -50,7 +50,7 @@ golden-update:
 
 # Check OpenAPI spec generated for the Petstore example. Uses https://github.com/daveshanley/vacuum
 openapi-check:
-	vacuum lint -d examples/petstore/lib/testdata/doc/openapi.json
+	go run github.com/daveshanley/vacuum@latest lint -d examples/petstore/lib/testdata/doc/openapi.json
 
 # Examples
 example:

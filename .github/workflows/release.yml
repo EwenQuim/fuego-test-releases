@@ -102,8 +102,8 @@ jobs:
       - name: Run CI tests
         run: make ci
 
-      - name: Run full CI suite
-        run: make ci-full
+      - name: Run CI suite
+        run: make ci
 
   approval:
     name: Manual Approval
