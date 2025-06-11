@@ -30,10 +30,11 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Setup Go
+      - name: Set up Go
         uses: actions/setup-go@v5
         with:
-          go-version: "1.24.2"
+          go-version-file: "./go.work"
+          cache: true
 
       - name: Validate version format
         id: validate
@@ -89,45 +90,14 @@ jobs:
         with:
           go-version: "1.24.2"
 
-      - name: Cache Go modules
-        uses: actions/cache@v4
-        with:
-          path: |
-            ~/.cache/go-build
-            ~/go/pkg/mod
-          key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
-          restore-keys: |
-            ${{ runner.os }}-go-
-
-      - name: Run CI tests
-        run: make ci
-
       - name: Run CI suite
         run: make ci
-
-  approval:
-    name: Manual Approval
-    runs-on: ubuntu-latest
-    needs: [validate, test]
-    if: ${{ !github.event.inputs.dry_run }}
-    steps:
-      - name: Request approval
-        run: |
-          echo "🚀 Ready to release ${{ needs.validate.outputs.version }}"
-          echo "📦 Modules to be tagged:"
-          echo "  - ${{ needs.validate.outputs.version }} (main)"
-          for module in ${{ needs.validate.outputs.modules }}; do
-            echo "  - ${module}/${{ needs.validate.outputs.version }}"
-          done
-          echo ""
-          echo "✅ Tests passed"
-          echo "⏳ Waiting for manual approval..."
 
   release:
     name: Create Release
     runs-on: ubuntu-latest
-    needs: [validate, test, approval]
-    if: ${{ (needs.test.result == 'success') && (needs.approval.result == 'success' || github.event.inputs.dry_run) }}
+    needs: [validate, test]
+    if: ${{ (needs.test.result == 'success') }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
